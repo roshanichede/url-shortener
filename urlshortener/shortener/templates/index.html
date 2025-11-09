@@ -217,48 +217,74 @@
     </main>
 
     <script>
-        // Wait for the DOM to be fully loaded before attaching event listeners
+        // Get CSRF token from cookie
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+
         document.addEventListener('DOMContentLoaded', () => {
-            
-            // Get references to the form elements
             const urlForm = document.getElementById('url-form');
             const urlInput = document.getElementById('url-input');
             const submitBtn = document.getElementById('submit-btn');
             const resultContainer = document.getElementById('result-container');
             const shortUrlLink = document.getElementById('short-url');
 
-            // Handle the form submission
-            urlForm.addEventListener('submit', (event) => {
-                // Prevent the default form submission (which reloads the page)
+            urlForm.addEventListener('submit', async (event) => {
                 event.preventDefault();
 
                 const longUrl = urlInput.value;
+                const csrftoken = getCookie('csrftoken');
 
-                // --- MOCK API CALL ---
-                // In a real project, you would send `longUrl` to your backend here
-                // using fetch() and wait for a response.
-                
-                // 1. Show a loading state
+                // Show loading state
                 submitBtn.disabled = true;
                 submitBtn.classList.add('loading');
-                submitBtn.textContent = 'Shortening...'; // Text is hidden by CSS, but good for accessibility
-                
-                // 2. Simulate a 1.5-second network delay
-                setTimeout(() => {
-                    // Create a fake short URL
-                    const mockShortUrl = 'https://short.ly/abc123';
+                submitBtn.textContent = 'Shortening...';
 
-                    // 3. Display the result
-                    shortUrlLink.href = mockShortUrl;
-                    shortUrlLink.textContent = mockShortUrl;
-                    resultContainer.classList.add('show'); // 'show' class triggers the slide-in animation
+                try {
+                    // Make actual API call to Django backend
+                    const response = await fetch('/urlshortner/', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRFToken': csrftoken
+                        },
+                        body: JSON.stringify({ url: longUrl })
+                    });
 
-                    // 4. Reset the button
+                    const data = await response.json();
+
+                    if (response.ok && data.short_code) {
+                        // Build the short URL using the current domain and short code
+                        const shortUrl = `${window.location.origin}/${data.short_code}`;
+                        
+                        // Display the result
+                        shortUrlLink.href = shortUrl;
+                        shortUrlLink.textContent = shortUrl;
+                        resultContainer.classList.add('show');
+                    } else {
+                        // Handle error
+                        alert('An error occurred while shortening the URL');
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    alert('Failed to connect to the server. Please try again.');
+                } finally {
+                    // Reset button state
                     submitBtn.disabled = false;
                     submitBtn.classList.remove('loading');
                     submitBtn.textContent = 'Shorten!';
-
-                }, 1500);
+                }
             });
         });
     </script>

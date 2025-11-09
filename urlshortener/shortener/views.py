@@ -7,10 +7,10 @@ import uuid
 from .supabase_client import supabase
 from django.shortcuts import redirect
 
-@csrf_exempt
 def dashboard(request):
    return render(request,'index.html')
 
+@csrf_exempt
 def urlshortener(request):
    if request.method == 'POST':
       raw_body = request.body
@@ -37,7 +37,7 @@ def urlshortener(request):
          return HttpResponse("Invalid JSON in request body", status=400)
       except UnicodeDecodeError:
          return HttpResponse("Could not decode request body", status=400)
-   return render(request,'index.html')
+   return JsonResponse({'error': 'Method not allowed'}, status=405)
 
 def geturl(request, short_code):
    if request.method == 'GET':
