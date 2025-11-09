@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sleek URL Shortener</title>
+    <style>
+        /* --- 1. Base & Resets --- */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            display: grid;
+            place-items: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+            overflow: hidden; /* Hide scrollbars from initial animation */
+        }
+
+        /* --- 2. Main Shortener Container --- */
+        .shortener-container {
+            background: #ffffff;
+            padding: 2.5rem 3rem;
+            border-radius: 16px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+            text-align: center;
+            
+            /* Entry Animation */
+            animation: fadeInScale 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+            opacity: 0;
+            transform: scale(0.8);
+        }
+
+        h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            color: #2c3e50;
+        }
+
+        p {
+            font-size: 1rem;
+            color: #7f8c8d;
+            margin-bottom: 2rem;
+        }
+
+        /* --- 3. Form Styling --- */
+        #url-form {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .url-input {
+            width: 100%;
+            padding: 1rem;
+            font-size: 1rem;
+            border: 2px solid #ecf0f1;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            -webkit-appearance: none; /* Fix for iOS safari radius */
+        }
+
+        /* Input Focus Animation */
+        .url-input:focus {
+            outline: none;
+            border-color: #764ba2;
+            box-shadow: 0 0 0 4px rgba(118, 75, 162, 0.2);
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 1rem;
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #ffffff;
+            background: #667eea;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        /* Button Hover Animation */
+        .submit-btn:hover:not(:disabled) {
+            background: #5a6fdc;
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .submit-btn:active:not(:disabled) {
+            transform: translateY(-1px);
+            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Loading state for the button */
+        .submit-btn:disabled {
+            background: #bdc3c7;
+            cursor: not-allowed;
+        }
+
+        .submit-btn.loading {
+            position: relative;
+            color: transparent;
+        }
+
+        .submit-btn.loading::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 20px;
+            height: 20px;
+            margin-top: -10px;
+            margin-left: -10px;
+            border: 3px solid rgba(255, 255, 255, 0.5);
+            border-top-color: #ffffff;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        /* --- 4. Result Area --- */
+        #result-container {
+            margin-top: 1.5rem;
+            padding: 1rem;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border: 2px dashed #e0e0e0;
+            display: none; /* Hidden by default */
+            word-wrap: break-word;
+            animation: slideIn 0.5s ease-out forwards;
+        }
+
+        #result-container.show {
+            display: block;
+        }
+        
+        #result-container strong {
+            color: #34495e;
+            display: block;
+            margin-bottom: 0.5rem;
+        }
+
+        #short-url {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.3s ease;
+        }
+
+        #short-url:hover {
+            color: #764ba2;
+            text-decoration: underline;
+        }
+
+        /* --- 5. Keyframe Animations --- */
+        
+        /* Main container entry */
+        @keyframes fadeInScale {
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        /* Button loading spinner */
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+        
+        /* Result container entry */
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+    </style>
+</head>
+<body>
+
+    <main class="shortener-container">
+        <h1>URL Shortener</h1>
+        <p>Enter a long URL to make it short and sweet.</p>
+
+        <form id="url-form">
+            <input 
+                type="url" 
+                id="url-input" 
+                class="url-input" 
+                placeholder="https://example.com/very-long-url-to-shorten" 
+                required
+            >
+            <button type="submit" id="submit-btn" class="submit-btn">
+                Shorten!
+            </button>
+        </form>
+
+        <div id="result-container">
+            <strong>Your short URL:</strong>
+            <a href="#" id="short-url" target="_blank"></a>
+        </div>
+    </main>
+
+    <script>
+        // Wait for the DOM to be fully loaded before attaching event listeners
+        document.addEventListener('DOMContentLoaded', () => {
+            
+            // Get references to the form elements
+            const urlForm = document.getElementById('url-form');
+            const urlInput = document.getElementById('url-input');
+            const submitBtn = document.getElementById('submit-btn');
+            const resultContainer = document.getElementById('result-container');
+            const shortUrlLink = document.getElementById('short-url');
+
+            // Handle the form submission
+            urlForm.addEventListener('submit', (event) => {
+                // Prevent the default form submission (which reloads the page)
+                event.preventDefault();
+
+                const longUrl = urlInput.value;
+
+                // --- MOCK API CALL ---
+                // In a real project, you would send `longUrl` to your backend here
+                // using fetch() and wait for a response.
+                
+                // 1. Show a loading state
+                submitBtn.disabled = true;
+                submitBtn.classList.add('loading');
+                submitBtn.textContent = 'Shortening...'; // Text is hidden by CSS, but good for accessibility
+                
+                // 2. Simulate a 1.5-second network delay
+                setTimeout(() => {
+                    // Create a fake short URL
+                    const mockShortUrl = 'https://short.ly/abc123';
+
+                    // 3. Display the result
+                    shortUrlLink.href = mockShortUrl;
+                    shortUrlLink.textContent = mockShortUrl;
+                    resultContainer.classList.add('show'); // 'show' class triggers the slide-in animation
+
+                    // 4. Reset the button
+                    submitBtn.disabled = false;
+                    submitBtn.classList.remove('loading');
+                    submitBtn.textContent = 'Shorten!';
+
+                }, 1500);
+            });
+        });
+    </script>
+
+</body>
+</html>
