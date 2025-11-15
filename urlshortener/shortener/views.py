@@ -6,6 +6,8 @@ import json
 import uuid
 from .supabase_client import supabase
 from django.shortcuts import redirect
+from django.core.validators import URLValidator
+from django.core.exceptions import ValidationError
 
 def dashboard(request):
    return render(request,'index.html')
@@ -20,12 +22,31 @@ def urlshortener(request):
          short_code = str(uuid.uuid4())[:8]  # Generate a short code
          original_url = data.get('url')
          
-         if not original_url:
-            return HttpResponseBadRequest("Missing 'url' in request body")
+         val = URLValidator()
+         try:
+            val(original_url)
+         except ValidationError:
+            return HttpResponseBadRequest("Oops! That doesn’t look like a real URL")
+         
+         if not original_url or len(original_url.strip())==0:
+            return HttpResponse("Oops! you forgot the main character: the URL \n(Missing 'url' in request body)")
 
-         if original_url.startswith('http://') is False and original_url.startswith('https://') is False:
+         if not (original_url.startswith('http://')) or (original_url.startswith('https://')):
             original_url = 'https://' + original_url
          
+         blocked_urls = (
+            "http://localhost",
+            "http://127.",
+            "http://10.",
+            "http://192.168",
+            "file://",
+            "ftp://",
+            "data:",
+            "javascript:")
+         
+         if original_url.startswith(blocked_urls):
+            return HttpResponseBadRequest("This URL is giving danger zone energy!!")
+     
          res = {
             "original_url": original_url,
             "short_code": short_code

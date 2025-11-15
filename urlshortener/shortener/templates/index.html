@@ -13,42 +13,134 @@
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             display: grid;
             place-items: center;
             min-height: 100vh;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: #333;
-            overflow: hidden; /* Hide scrollbars from initial animation */
+            background: #000000;
+            color: #ffffff;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* Animated grid background */
+        body::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: 
+                linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+            background-size: 50px 50px;
+            animation: gridMove 20s linear infinite;
+            pointer-events: none;
+        }
+
+        @keyframes gridMove {
+            0% {
+                transform: translate(0, 0);
+            }
+            100% {
+                transform: translate(50px, 50px);
+            }
+        }
+
+        /* Glow orbs in background */
+        body::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle at 30% 50%, rgba(255, 255, 255, 0.05) 0%, transparent 50%),
+                        radial-gradient(circle at 70% 50%, rgba(255, 255, 255, 0.03) 0%, transparent 50%);
+            animation: orbitGlow 15s ease-in-out infinite;
+            pointer-events: none;
+        }
+
+        @keyframes orbitGlow {
+            0%, 100% {
+                transform: rotate(0deg);
+            }
+            50% {
+                transform: rotate(180deg);
+            }
         }
 
         /* --- 2. Main Shortener Container --- */
         .shortener-container {
-            background: #ffffff;
-            padding: 2.5rem 3rem;
-            border-radius: 16px;
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            padding: 3rem 3.5rem;
+            border-radius: 24px;
             width: 90%;
-            max-width: 500px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+            max-width: 550px;
+            box-shadow: 
+                0 0 0 1px rgba(255, 255, 255, 0.1),
+                0 30px 60px rgba(0, 0, 0, 0.5),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
             text-align: center;
+            position: relative;
+            z-index: 1;
             
             /* Entry Animation */
             animation: fadeInScale 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
             opacity: 0;
-            transform: scale(0.8);
+            transform: scale(0.9);
+        }
+
+        /* Subtle shimmer effect on container */
+        .shortener-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.05), transparent);
+            animation: shimmer 3s infinite;
+        }
+
+        @keyframes shimmer {
+            0% {
+                left: -100%;
+            }
+            100% {
+                left: 100%;
+            }
+        }
+
+        .tagline {
+            font-size: 0.8rem;
+            color: rgba(255, 255, 255, 0.4);
+            margin-bottom: 1.5rem;
+            font-weight: 300;
+            letter-spacing: 2px;
+            text-transform: uppercase;
         }
 
         h1 {
-            font-size: 2rem;
+            font-size: 2.5rem;
             font-weight: 700;
-            margin-bottom: 1rem;
-            color: #2c3e50;
+            margin-bottom: 0.75rem;
+            color: #ffffff;
+            letter-spacing: -1px;
+            background: linear-gradient(135deg, #ffffff 0%, rgba(255, 255, 255, 0.7) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
 
         p {
-            font-size: 1rem;
-            color: #7f8c8d;
-            margin-bottom: 2rem;
+            font-size: 0.95rem;
+            color: rgba(255, 255, 255, 0.5);
+            margin-bottom: 2.5rem;
+            font-weight: 300;
         }
 
         /* --- 3. Form Styling --- */
@@ -60,50 +152,81 @@
 
         .url-input {
             width: 100%;
-            padding: 1rem;
-            font-size: 1rem;
-            border: 2px solid #ecf0f1;
-            border-radius: 8px;
-            transition: all 0.3s ease;
-            -webkit-appearance: none; /* Fix for iOS safari radius */
+            padding: 1.1rem 1.25rem;
+            font-size: 0.95rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 14px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            -webkit-appearance: none;
+            background: rgba(255, 255, 255, 0.05);
+            color: #ffffff;
+            font-weight: 300;
+        }
+
+        .url-input::placeholder {
+            color: rgba(255, 255, 255, 0.3);
         }
 
         /* Input Focus Animation */
         .url-input:focus {
             outline: none;
-            border-color: #764ba2;
-            box-shadow: 0 0 0 4px rgba(118, 75, 162, 0.2);
+            border-color: rgba(255, 255, 255, 0.3);
+            box-shadow: 
+                0 0 0 3px rgba(255, 255, 255, 0.05),
+                0 10px 20px rgba(0, 0, 0, 0.3);
+            background: rgba(255, 255, 255, 0.08);
+            transform: translateY(-2px);
         }
 
         .submit-btn {
             width: 100%;
-            padding: 1rem;
-            font-size: 1.1rem;
+            padding: 1.1rem;
+            font-size: 1rem;
             font-weight: 600;
-            color: #ffffff;
-            background: #667eea;
+            color: #000000;
+            background: #ffffff;
             border: none;
-            border-radius: 8px;
+            border-radius: 14px;
             cursor: pointer;
-            transition: all 0.3s ease;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+            letter-spacing: 0.5px;
+        }
+
+        /* Button shine effect */
+        .submit-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transition: left 0.5s;
+        }
+
+        .submit-btn:hover::before {
+            left: 100%;
         }
 
         /* Button Hover Animation */
         .submit-btn:hover:not(:disabled) {
-            background: #5a6fdc;
+            background: #f0f0f0;
             transform: translateY(-3px);
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 15px 30px rgba(255, 255, 255, 0.2);
         }
 
         .submit-btn:active:not(:disabled) {
             transform: translateY(-1px);
-            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 5px 15px rgba(255, 255, 255, 0.15);
         }
 
         /* Loading state for the button */
         .submit-btn:disabled {
-            background: #bdc3c7;
+            background: rgba(255, 255, 255, 0.3);
             cursor: not-allowed;
+            color: rgba(0, 0, 0, 0.5);
         }
 
         .submit-btn.loading {
@@ -120,22 +243,23 @@
             height: 20px;
             margin-top: -10px;
             margin-left: -10px;
-            border: 3px solid rgba(255, 255, 255, 0.5);
-            border-top-color: #ffffff;
+            border: 3px solid rgba(0, 0, 0, 0.2);
+            border-top-color: #000000;
             border-radius: 50%;
             animation: spin 0.8s linear infinite;
         }
 
         /* --- 4. Result Area --- */
         #result-container {
-            margin-top: 1.5rem;
-            padding: 1rem;
-            background: #f8f9fa;
-            border-radius: 8px;
-            border: 2px dashed #e0e0e0;
-            display: none; /* Hidden by default */
+            margin-top: 2rem;
+            padding: 1.25rem;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 14px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            display: none;
             word-wrap: break-word;
-            animation: slideIn 0.5s ease-out forwards;
+            animation: slideIn 0.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+            backdrop-filter: blur(10px);
         }
 
         #result-container.show {
@@ -143,21 +267,78 @@
         }
         
         #result-container strong {
-            color: #34495e;
+            color: rgba(255, 255, 255, 0.6);
             display: block;
-            margin-bottom: 0.5rem;
+            margin-bottom: 0.75rem;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 500;
         }
 
         #short-url {
-            color: #667eea;
+            color: #ffffff;
             text-decoration: none;
             font-weight: 600;
-            transition: color 0.3s ease;
+            transition: all 0.3s ease;
+            font-size: 1.05rem;
+            display: inline-block;
+            position: relative;
+        }
+
+        #short-url::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(90deg, #ffffff, rgba(255, 255, 255, 0.5));
+            transform: scaleX(0);
+            transform-origin: left;
+            transition: transform 0.3s ease;
+        }
+
+        #short-url:hover::after {
+            transform: scaleX(1);
         }
 
         #short-url:hover {
-            color: #764ba2;
-            text-decoration: underline;
+            color: rgba(255, 255, 255, 0.8);
+            transform: translateY(-2px);
+        }
+
+        /* --- 5. Error Area --- */
+        #error-container {
+            margin-top: 2rem;
+            padding: 1.25rem;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 14px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            display: none;
+            word-wrap: break-word;
+            animation: slideIn 0.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+            backdrop-filter: blur(10px);
+        }
+
+        #error-container.show {
+            display: block;
+        }
+        
+        #error-container strong {
+            color: rgba(255, 255, 255, 0.6);
+            display: block;
+            margin-bottom: 0.75rem;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 500;
+        }
+
+        #error-message {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 0.95rem;
+            font-weight: 400;
         }
 
         /* --- 5. Keyframe Animations --- */
@@ -189,11 +370,23 @@
             }
         }
 
+        /* --- 6. Responsive adjustments --- */
+        @media (max-width: 600px) {
+            .shortener-container {
+                padding: 2rem 1.5rem;
+            }
+
+            h1 {
+                font-size: 2rem;
+            }
+        }
+
     </style>
 </head>
 <body>
 
     <main class="shortener-container">
+        <p class="tagline">Because smart people don't share long links.</p>
         <h1>URL Shortener</h1>
         <p>Enter a long URL to make it short and sweet.</p>
 
@@ -214,6 +407,11 @@
             <strong>Your short URL:</strong>
             <a href="#" id="short-url" target="_blank"></a>
         </div>
+
+        <div id="error-container">
+            <strong>Error</strong>
+            <p id="error-message"></p>
+        </div>
     </main>
 
     <script>
@@ -227,7 +425,7 @@
                     if (cookie.substring(0, name.length + 1) === (name + '=')) {
                         cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
                         break;
-                    }
+    }
                 }
             }
             return cookieValue;
@@ -239,12 +437,18 @@
             const submitBtn = document.getElementById('submit-btn');
             const resultContainer = document.getElementById('result-container');
             const shortUrlLink = document.getElementById('short-url');
+            const errorContainer = document.getElementById('error-container');
+            const errorMessage = document.getElementById('error-message');
 
             urlForm.addEventListener('submit', async (event) => {
                 event.preventDefault();
 
                 const longUrl = urlInput.value;
                 const csrftoken = getCookie('csrftoken');
+
+                // Hide previous results/errors
+                resultContainer.classList.remove('show');
+                errorContainer.classList.remove('show');
 
                 // Show loading state
                 submitBtn.disabled = true;
@@ -262,7 +466,17 @@
                         body: JSON.stringify({ url: longUrl })
                     });
 
-                    const data = await response.json();
+                    // Try to parse response as JSON, fallback to text
+                    let data;
+                    const contentType = response.headers.get('content-type');
+                    
+                    if (contentType && contentType.includes('application/json')) {
+                        data = await response.json();
+                    } else {
+                        // If not JSON, get text response
+                        const textData = await response.text();
+                        data = { error: textData };
+                    }
 
                     if (response.ok && data.short_code) {
                         // Build the short URL using the current domain and short code
@@ -273,12 +487,15 @@
                         shortUrlLink.textContent = shortUrl;
                         resultContainer.classList.add('show');
                     } else {
-                        // Handle error
-                        alert('An error occurred while shortening the URL');
+                        // Handle error from API - check multiple possible error fields
+                        const errorText = data.error || data.message || data.detail || 'An error occurred while shortening the URL';
+                        errorMessage.textContent = errorText;
+                        errorContainer.classList.add('show');
                     }
                 } catch (error) {
                     console.error('Error:', error);
-                    alert('Failed to connect to the server. Please try again.');
+                    errorMessage.textContent = 'Failed to connect to the server. Please try again.';
+                    errorContainer.classList.add('show');
                 } finally {
                     // Reset button state
                     submitBtn.disabled = false;
